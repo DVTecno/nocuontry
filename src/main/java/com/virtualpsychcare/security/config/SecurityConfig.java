@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(http -> {
                     http.requestMatchers(HttpMethod.GET, "/api/v1/status").permitAll();
+                    http.requestMatchers( "/cloudinary/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
 
