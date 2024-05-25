@@ -2,6 +2,7 @@ package com.virtualpsychcare.service.implementation;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,12 +16,21 @@ import java.util.Objects;
 @Service
 public class CloudinaryServiceImpl {
     Cloudinary cloudinary;
+
+    @Value("${cloudinary.cloud_name}")
+    private String cloudName;
+
+    @Value("${cloudinary.api_key}")
+    private String apiKey;
+
+    @Value("${cloudinary.api_secret}")
+    private String apiSecret;
     private Map<String, String> valueMap = new HashMap<>();
 
     public CloudinaryServiceImpl() {
-        valueMap.put("cloud_name", "dcq6ecx2k");
-        valueMap.put("api_key", "897877274521811");
-        valueMap.put("api_secret", "A3rl6D3E363wgIqxxhAsUirFUKc");
+        valueMap.put("cloud_name", cloudName);
+        valueMap.put("api_key", apiKey);
+        valueMap.put("api_secret", apiSecret);
         valueMap.put("secure", "true");
         cloudinary = new Cloudinary(valueMap);
     }
