@@ -1,5 +1,7 @@
 package com.virtualpsychcare.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.virtualpsychcare.dto.AuthRegisterUserRequest;
 import com.virtualpsychcare.dto.AuthLoginRequest;
 import com.virtualpsychcare.dto.AuthResponse;
@@ -9,12 +11,10 @@ import com.virtualpsychcare.service.implementation.UserDetailServiceImpl;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -33,9 +33,16 @@ public class AuthenticationController {
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid AuthRegisterUserRequest registerUserRequest) {
-        AuthResponse registeredUser = userDetailService.registerUser(registerUserRequest);
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> register(@RequestParam("user") String userJson, @RequestParam MultipartFile file) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        AuthRegisterUserRequest registerUserRequest = null;
+        try {
+            registerUserRequest = objectMapper.readValue(userJson, AuthRegisterUserRequest.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        AuthResponse registeredUser = userDetailService.registerUser(registerUserRequest, file);
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
     }
 }

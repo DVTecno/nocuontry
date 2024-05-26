@@ -2,6 +2,7 @@ package com.virtualpsychcare.service.implementation;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +28,9 @@ public class CloudinaryServiceImpl {
     private String apiSecret;
     private Map<String, String> valueMap = new HashMap<>();
 
-    public CloudinaryServiceImpl() {
+    @PostConstruct
+    public void init() {
+        Map<String, String> valueMap = new HashMap<>();
         valueMap.put("cloud_name", cloudName);
         valueMap.put("api_key", apiKey);
         valueMap.put("api_secret", apiSecret);

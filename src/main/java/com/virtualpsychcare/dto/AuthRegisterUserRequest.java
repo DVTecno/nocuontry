@@ -1,5 +1,6 @@
 package com.virtualpsychcare.dto;
 
+import com.virtualpsychcare.entities.Imagen;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 

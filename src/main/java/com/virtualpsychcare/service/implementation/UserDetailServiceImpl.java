@@ -1,8 +1,9 @@
 package com.virtualpsychcare.service.implementation;
 
-import com.virtualpsychcare.dto.AuthRegisterUserRequest;
 import com.virtualpsychcare.dto.AuthLoginRequest;
+import com.virtualpsychcare.dto.AuthRegisterUserRequest;
 import com.virtualpsychcare.dto.AuthResponse;
+import com.virtualpsychcare.entities.Imagen;
 import com.virtualpsychcare.entities.RoleEntity;
 import com.virtualpsychcare.entities.UserEntity;
 import com.virtualpsychcare.repository.RoleEntityRepository;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,12 +35,14 @@ public class UserDetailServiceImpl implements UserDetailsService, IUserService {
     private final RoleEntityRepository roleEntityRepository;
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
+    private final ImagenServiceImpl imagenService;
 
-    public UserDetailServiceImpl(UserEntityRepository userEntityRepository, RoleEntityRepository roleEntityRepository, JwtUtils jwtUtils, PasswordEncoder passwordEncoder) {
+    public UserDetailServiceImpl(UserEntityRepository userEntityRepository, RoleEntityRepository roleEntityRepository, JwtUtils jwtUtils, PasswordEncoder passwordEncoder, ImagenServiceImpl imagenService) {
         this.userEntityRepository = userEntityRepository;
         this.roleEntityRepository = roleEntityRepository;
         this.jwtUtils = jwtUtils;
         this.passwordEncoder = passwordEncoder;
+        this.imagenService = imagenService;
     }
 
     @Override
@@ -89,19 +93,26 @@ public class UserDetailServiceImpl implements UserDetailsService, IUserService {
     }
 
     @Transactional
-    public AuthResponse registerUser(AuthRegisterUserRequest registerUserRequest) {
+    public AuthResponse registerUser(AuthRegisterUserRequest registerUserRequest, MultipartFile file) {
         String username = registerUserRequest.username();
         String password = registerUserRequest.password();
+        if (userEntityRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Username is already in use");
+        }
+
+        Imagen imagen = imagenService.upload(file);
+
         List<String> roles = registerUserRequest.roleRequest().roleListName();
 
-        Set< RoleEntity> roleEntities = new HashSet<>(roleEntityRepository.findRoleEntitiesByRoleEnumIn(roles));
+        Set<RoleEntity> roleEntities = new HashSet<>(roleEntityRepository.findRoleEntitiesByRoleEnumIn(roles));
         if (roleEntities.isEmpty()) {
             throw new IllegalArgumentException("Role not found");
         }
 
-        UserEntity userEntity =  UserEntity.builder()
+        UserEntity userEntity = UserEntity.builder()
                 .username(username)
                 .password(passwordEncoder.encode(password))
+                .imagen(imagen)
                 .roles(roleEntities)
                 .isEnable(true)
                 .accountNonLocked(true)

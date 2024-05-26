@@ -20,9 +20,12 @@ public class Imagen {
     private String imagenUrl;
     private String imagenId;
 
-    public Imagen(String originalFilename, String url, String publicId) {
-        this.name = originalFilename;
-        this.imagenUrl = url;
-        this.imagenId = publicId;
+
+    @Builder
+    public Imagen(String name, String imagenUrl, String imagenId) {
+        this.name = name;
+        this.imagenUrl = imagenUrl;
+        this.imagenId = imagenId;
     }
+
 }
